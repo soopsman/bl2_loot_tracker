@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using Octokit;
 
@@ -7,28 +6,26 @@ namespace bl2_loot_tracker;
 
 public class Tracker
 {
-    private const string TRACKER_FILE_PATH = @"C:\Program Files (x86)\Steam\steamapps\common\Borderlands 2\Binaries\Win32\Mods\LootRandomizer\Seeds";
+    private const string GISTS_FILE = "gists.json";
     private const string SEED_LIST = "Seed List.txt";
     private readonly FileSystemWatcher _watcher;
     private readonly Dictionary<string, GistInformation> _gists;
-    private readonly string _storage;
     private readonly string _token;
 
-    public Tracker(string token)
+    public Tracker(string token, string path)
     {
-        _watcher = new FileSystemWatcher(TRACKER_FILE_PATH);
+        _watcher = new FileSystemWatcher(path);
         _watcher.Created += WatcherEvent;
         _watcher.Changed += WatcherEvent;
         _watcher.EnableRaisingEvents = true;
 
         _token = token;
         
-        _storage = $@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\gists.json";
-        if (File.Exists(_storage))
+        if (File.Exists(GISTS_FILE))
         {
             try
             {
-                _gists = JsonSerializer.Deserialize<Dictionary<string, GistInformation>>(File.ReadAllText(_storage));
+                _gists = JsonSerializer.Deserialize<Dictionary<string, GistInformation>>(File.ReadAllText(GISTS_FILE));
             }
             catch
             {
@@ -74,7 +71,7 @@ public class Tracker
 
             _gists[seed] = new GistInformation {Id = result.Id, Url = result.HtmlUrl};
 
-            File.WriteAllText(_storage, JsonSerializer.Serialize(_gists));
+            File.WriteAllText(GISTS_FILE, JsonSerializer.Serialize(_gists));
         }
         catch (Exception exception)
         {

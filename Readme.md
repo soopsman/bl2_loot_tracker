@@ -1,6 +1,6 @@
 ﻿## BL2 Loot Tracker
 
-This app looks for updates to tracker files from the Loot Randomizer mod by Mopioid. 
+This app looks for updates to trackers file from the Loot Randomizer mod by Mopioid. 
 
 When a tracker file is changed, a github gist is created for it and kept up to date.
 
@@ -8,7 +8,8 @@ When a tracker file is changed, a github gist is created for it and kept up to d
 
 1. Unzip the latest release
 2. Create a Personal Access Token in GitHub with the 'Gists' permission
-3. Copy the token into token.txt
+3. Copy the token into appsettings.json in the indicated spot
+4. Update your seeds path in appsettings.json if required
 
 ### Usage
 

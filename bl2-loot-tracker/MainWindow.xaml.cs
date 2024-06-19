@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using System.Reflection;
+using System.Text.Json;
 using System.Windows;
 
 namespace bl2_loot_tracker;
@@ -14,7 +14,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        _tracker = new Tracker(File.ReadAllText($@"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}\token.txt"));
+        Settings settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
+        _tracker = new Tracker(settings.Token, settings.SeedsPath);
     }
 
     private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
