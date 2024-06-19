@@ -17,7 +17,6 @@ public class Tracker
         _watcher = new FileSystemWatcher(path);
         _watcher.Created += WatcherEvent;
         _watcher.Changed += WatcherEvent;
-        _watcher.EnableRaisingEvents = true;
 
         _token = token;
         
@@ -36,6 +35,10 @@ public class Tracker
         {
             _gists = new Dictionary<string, GistInformation>();
         }
+
+        CheckExistingSeeds(path);
+        
+        _watcher.EnableRaisingEvents = true;
     }
 
     public void Shutdown()
@@ -43,18 +46,35 @@ public class Tracker
         _watcher.EnableRaisingEvents = false;
         _watcher.Dispose();
     }
-    
-    private async void WatcherEvent(object sender, FileSystemEventArgs e)
+
+    private void CheckExistingSeeds(string seedsPath)
     {
-        if (e.FullPath.EndsWith(SEED_LIST))
+        foreach (string filePath in Directory.GetFiles(seedsPath))
+        {
+            string seed = Path.GetFileNameWithoutExtension(filePath);
+            if (!_gists.ContainsKey(seed))
+            {
+                UpdateSeed(filePath);
+            }
+        }
+    }
+    
+    private void WatcherEvent(object sender, FileSystemEventArgs e)
+    {
+        UpdateSeed(e.FullPath);
+    }
+
+    private async void UpdateSeed(string path)
+    {
+        if (path.EndsWith(SEED_LIST))
         {
             return;
         }
-
+        
         try
         {
-            string seed = Path.GetFileNameWithoutExtension(e.FullPath);
-            string trackerContents = File.ReadAllText(e.FullPath);
+            string seed = Path.GetFileNameWithoutExtension(path);
+            string trackerContents = File.ReadAllText(path);
 
             GitHubClient client = new GitHubClient(new ProductHeaderValue("bl2-loot-randomizer-tracker"));
             client.Credentials = new Credentials(_token);
@@ -71,7 +91,7 @@ public class Tracker
 
             _gists[seed] = new GistInformation {Id = result.Id, Url = result.HtmlUrl};
 
-            File.WriteAllText(GISTS_FILE, JsonSerializer.Serialize(_gists));
+            File.WriteAllText(GISTS_FILE, JsonSerializer.Serialize(_gists, new JsonSerializerOptions(JsonSerializerOptions.Default) {WriteIndented = true}));
         }
         catch (Exception exception)
         {

@@ -1,6 +1,6 @@
 ﻿## BL2 Loot Tracker
 
-This app looks for updates to trackers file from the Loot Randomizer mod by Mopioid. 
+This app looks for updates to tracker files from the [Loot Randomizer](https://github.com/mopioid/Borderlands-Loot-Randomizer) mod by Mopioid. 
 
 When a tracker file is changed, a github gist is created for it and kept up to date.
 
