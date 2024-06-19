@@ -4,6 +4,12 @@ This app looks for updates to trackers file from the Loot Randomizer mod by Mopi
 
 When a tracker file is changed, a github gist is created for it and kept up to date.
 
+### Prerequisites
+
+1. .NET 8 SDK or .NET 8 Desktop Runtime ([here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0))
+2. Github account
+3. Github Personal access token with Gist permission: Settings -> Developer Settings -> Personal access tokens -> Tokens (classic)
+
 ### Installation
 
 1. Unzip the latest release
