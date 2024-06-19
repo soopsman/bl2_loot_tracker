@@ -2,7 +2,7 @@
 
 This app looks for updates to tracker files from the [Loot Randomizer](https://github.com/mopioid/Borderlands-Loot-Randomizer) mod by Mopioid. 
 
-When a tracker file is changed, a github gist is created for it and kept up to date.
+When the app is started a github gist is created for each seed and kept up to date if the tracker file changes.
 
 ### Prerequisites
 
@@ -20,6 +20,6 @@ When a tracker file is changed, a github gist is created for it and kept up to d
 ### Usage
 
 1. Run the executable
-2. When a seed tracker is updated, the app will create a gist for it
+2. A gist will be created for each seed and updated on the fly
 3. You can get a link to the gist in gists.json
 
