@@ -23,4 +23,5 @@ When the app is started a github gist is created for each seed and kept up to da
 2. A gist will be created for each seed and updated on the fly
 3. You can get a link to the gist in gists.json
 4. If UseSingleGist in appsettings.json is true, one gist will be updated for all seeds otherwise a gist is created for each seed
+5. The app runs in the system tray, right-click the icon to exit or get latest Gist
 
