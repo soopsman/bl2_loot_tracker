@@ -47,6 +47,11 @@ public class Tracker
         _watcher.Dispose();
     }
 
+    public string GetLatestGist()
+    {
+        return _gists.Count > 0 ? _gists.Last().Value.Url : null;
+    }
+
     private void CheckExistingSeeds(string seedsPath)
     {
         if (_settings.UseSingleGist)
@@ -57,16 +62,13 @@ public class Tracker
             if (!string.IsNullOrEmpty(latestSeed))
             {
                 UpdateSeed(latestSeed);
-                return;
             }
         }
-        
-        foreach (string filePath in Directory.GetFiles(seedsPath))
+        else
         {
-            string seed = Path.GetFileNameWithoutExtension(filePath);
-            if (!_gists.ContainsKey(seed))
+            foreach (string filePath in Directory.GetFiles(seedsPath))
             {
-                UpdateSeed(filePath);
+                UpdateSeed(Path.GetFileNameWithoutExtension(filePath));
             }
         }
     }

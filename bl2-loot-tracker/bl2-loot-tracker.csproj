@@ -7,8 +7,9 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
-        <AssemblyVersion>0.0.0.4</AssemblyVersion>
-        <FileVersion>0.0.0.4</FileVersion>
+        <UseWindowsForms>true</UseWindowsForms>
+        <AssemblyVersion>0.0.0.5</AssemblyVersion>
+        <FileVersion>0.0.0.5</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +18,12 @@
 
     <ItemGroup>
       <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Launcher.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="loot.ico">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
