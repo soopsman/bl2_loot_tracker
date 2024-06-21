@@ -15,7 +15,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         Settings settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
-        _tracker = new Tracker(settings.Token, settings.SeedsPath);
+        _tracker = new Tracker(settings);
     }
 
     private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

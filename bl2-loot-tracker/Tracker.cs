@@ -10,15 +10,15 @@ public class Tracker
     private const string SEED_LIST = "Seed List.txt";
     private readonly FileSystemWatcher _watcher;
     private readonly Dictionary<string, GistInformation> _gists;
-    private readonly string _token;
+    private readonly Settings _settings;
 
-    public Tracker(string token, string path)
+    public Tracker(Settings settings)
     {
-        _watcher = new FileSystemWatcher(path);
+        _watcher = new FileSystemWatcher(settings.SeedsPath);
         _watcher.Created += WatcherEvent;
         _watcher.Changed += WatcherEvent;
 
-        _token = token;
+        _settings = settings;
         
         if (File.Exists(GISTS_FILE))
         {
@@ -36,7 +36,7 @@ public class Tracker
             _gists = new Dictionary<string, GistInformation>();
         }
 
-        CheckExistingSeeds(path);
+        CheckExistingSeeds(settings.SeedsPath);
         
         _watcher.EnableRaisingEvents = true;
     }
@@ -49,6 +49,18 @@ public class Tracker
 
     private void CheckExistingSeeds(string seedsPath)
     {
+        if (_settings.UseSingleGist)
+        {
+            string latestSeed = Directory.GetFiles(seedsPath).Where(seed => !seed.EndsWith(SEED_LIST))
+                .Aggregate((seed1, seed2) => new FileInfo(seed1).LastWriteTime > new FileInfo(seed2).LastWriteTime ? seed1 : seed2);
+
+            if (!string.IsNullOrEmpty(latestSeed))
+            {
+                UpdateSeed(latestSeed);
+                return;
+            }
+        }
+        
         foreach (string filePath in Directory.GetFiles(seedsPath))
         {
             string seed = Path.GetFileNameWithoutExtension(filePath);
@@ -77,18 +89,36 @@ public class Tracker
             string trackerContents = File.ReadAllText(path);
 
             GitHubClient client = new GitHubClient(new ProductHeaderValue("bl2-loot-randomizer-tracker"));
-            client.Credentials = new Credentials(_token);
+            client.Credentials = new Credentials(_settings.Token);
 
             Gist result;
             if (_gists.ContainsKey(seed))
             {
-                result = await client.Gist.Edit(_gists[seed].Id, new GistUpdate {Description = $"Tracker for {seed}", Files = {{$"{seed}.txt", new GistFileUpdate {Content = trackerContents}}}});
+                result = await client.Gist.Edit(_gists[seed].Id, new GistUpdate {Description = $"Tracker for {seed}", 
+                    Files = {{$"{seed}.txt", new GistFileUpdate {Content = trackerContents}}}});
+            }
+            else if (_settings.UseSingleGist && _gists.Count > 0)
+            {
+                string gistId = _gists.Last().Value.Id;
+                string previousSeed = _gists.Last().Key;
+                
+                result = await client.Gist.Edit(gistId, new GistUpdate {Description = $"Tracker for {seed}", Files =
+                    {
+                        {$"{seed}.txt", new GistFileUpdate {Content = trackerContents}},
+                        {$"{previousSeed}.txt", new GistFileUpdate {Content = string.Empty}}
+                    }
+                });
             }
             else
             {
                 result = await client.Gist.Create(new NewGist {Description = $"Tracker for {seed}", Public = true, Files = {{$"{seed}.txt", trackerContents}}});
             }
 
+            if (_settings.UseSingleGist)
+            {
+                _gists.Clear();
+            }
+            
             _gists[seed] = new GistInformation {Id = result.Id, Url = result.HtmlUrl};
 
             File.WriteAllText(GISTS_FILE, JsonSerializer.Serialize(_gists, new JsonSerializerOptions(JsonSerializerOptions.Default) {WriteIndented = true}));
