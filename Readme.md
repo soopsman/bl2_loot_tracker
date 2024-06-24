@@ -22,8 +22,7 @@ If a different seed is created or updated, the same Gist will be updated with th
 ### Usage
 
 1. Run the executable
-2. A gist will be created for each seed and updated on the fly
-3. You can get a link to the gist in gists.json
-4. If UseSingleGist in appsettings.json is changed to false, a new gist will be created for each seed
-5. The app runs in the system tray, right-click the icon to exit or get latest Gist
+2. You can get a link to the Gist(s) in gists.json
+3. If UseSingleGist in appsettings.json is changed to false, a new Gist will be created for each seed
+4. The app runs in the system tray, right-click the icon to exit or get latest Gist
 
