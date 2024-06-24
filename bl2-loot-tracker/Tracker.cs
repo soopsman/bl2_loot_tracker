@@ -49,7 +49,15 @@ public class Tracker
 
     public string GetLatestGist()
     {
-        return _gists.Count > 0 ? _gists.Last().Value.Url : null;
+        if (_gists.Count == 0)
+        {
+            return null;
+        }
+        
+        string latestSeed = Path.GetFileNameWithoutExtension(Directory.GetFiles(_settings.SeedsPath).Where(seed => !seed.EndsWith(SEED_LIST))
+            .Aggregate((seed1, seed2) => new FileInfo(seed1).LastWriteTime > new FileInfo(seed2).LastWriteTime ? seed1 : seed2));
+
+        return _gists.ContainsKey(latestSeed) ? _gists[latestSeed].Url : _gists.Last().Value.Url;
     }
 
     private void CheckExistingSeeds(string seedsPath)
