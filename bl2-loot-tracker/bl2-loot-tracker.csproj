@@ -6,10 +6,9 @@
         <RootNamespace>bl2_loot_tracker</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <UseWPF>true</UseWPF>
         <UseWindowsForms>true</UseWindowsForms>
-        <AssemblyVersion>0.0.0.6</AssemblyVersion>
-        <FileVersion>0.0.0.6</FileVersion>
+        <AssemblyVersion>0.0.0.7</AssemblyVersion>
+        <FileVersion>0.0.0.7</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,9 +17,6 @@
 
     <ItemGroup>
       <None Update="appsettings.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Launcher.ico">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="loot.ico">

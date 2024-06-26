@@ -8,9 +8,8 @@ If a different seed is created or updated, the same Gist will be updated with th
 
 ### Prerequisites
 
-1. .NET 8 SDK or .NET 8 Desktop Runtime ([here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0))
-2. Github account
-3. Github Personal access token with Gist permission: Settings -> Developer Settings -> Personal access tokens -> Tokens (classic)
+1. Github account
+2. Github Personal access token with Gist permission: Settings -> Developer Settings -> Personal access tokens -> Tokens (classic)
 
 ### Installation
 
@@ -22,7 +21,4 @@ If a different seed is created or updated, the same Gist will be updated with th
 ### Usage
 
 1. Run the executable
-2. You can get a link to the Gist(s) in gists.json
-3. If UseSingleGist in appsettings.json is changed to false, a new Gist will be created for each seed
-4. The app runs in the system tray, right-click the icon to exit or get latest Gist
-
+2. The app runs in the system tray, right-click the icon to exit or open the Gist
