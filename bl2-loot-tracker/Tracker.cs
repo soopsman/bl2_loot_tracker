@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Octokit;
 
 namespace bl2_loot_tracker;
@@ -8,16 +7,12 @@ public class Tracker
 {
     private const string GISTS_FILE = "gists.json";
     private const string SEED_LIST = "Seed List.txt";
-    private readonly FileSystemWatcher _watcher;
+    private readonly List<FileSystemWatcher> _watchers;
     private readonly Dictionary<string, GistInformation> _gists;
     private readonly Settings _settings;
 
     public Tracker(Settings settings)
     {
-        _watcher = new FileSystemWatcher(settings.SeedsPath);
-        _watcher.Created += WatcherEvent;
-        _watcher.Changed += WatcherEvent;
-
         _settings = settings;
         
         if (File.Exists(GISTS_FILE))
@@ -36,15 +31,39 @@ public class Tracker
             _gists = new Dictionary<string, GistInformation>();
         }
 
-        CheckExistingSeeds(settings.SeedsPath);
-        
-        _watcher.EnableRaisingEvents = true;
+        _watchers = new List<FileSystemWatcher>();
+
+        if (Directory.Exists(settings.SeedsPath))
+        {
+            FileSystemWatcher watcher = new FileSystemWatcher(settings.SeedsPath);
+            watcher.Created += WatcherEvent;
+            watcher.Changed += WatcherEvent;
+            watcher.EnableRaisingEvents = true;
+            _watchers.Add(watcher);
+        }
+
+        if (settings.AdditionalPaths != null)
+        {
+            _watchers.AddRange(settings.AdditionalPaths.Where(Directory.Exists).Select(path =>
+            {
+                FileSystemWatcher additionalWatcher = new FileSystemWatcher(path);
+                additionalWatcher.Created += WatcherEvent;
+                additionalWatcher.Changed += WatcherEvent;
+                additionalWatcher.EnableRaisingEvents = true;
+                return additionalWatcher;
+            }));
+        }
+
+        CheckExistingSeeds();
     }
 
     public void Shutdown()
     {
-        _watcher.EnableRaisingEvents = false;
-        _watcher.Dispose();
+        foreach (FileSystemWatcher watcher in _watchers)
+        {
+            watcher.EnableRaisingEvents = false;
+            watcher.Dispose();
+        }
     }
 
     public string GetLatestGist()
@@ -53,19 +72,17 @@ public class Tracker
         {
             return null;
         }
-        
-        string latestSeed = Path.GetFileNameWithoutExtension(Directory.GetFiles(_settings.SeedsPath).Where(seed => !seed.EndsWith(SEED_LIST))
-            .Aggregate((seed1, seed2) => new FileInfo(seed1).LastWriteTime > new FileInfo(seed2).LastWriteTime ? seed1 : seed2));
+
+        string latestSeed = Path.GetFileNameWithoutExtension(GetLatestSeed());
 
         return _gists.ContainsKey(latestSeed) ? _gists[latestSeed].Url : _gists.Last().Value.Url;
     }
 
-    private void CheckExistingSeeds(string seedsPath)
+    private void CheckExistingSeeds()
     {
         if (_settings.UseSingleGist)
         {
-            string latestSeed = Directory.GetFiles(seedsPath).Where(seed => !seed.EndsWith(SEED_LIST))
-                .Aggregate((seed1, seed2) => new FileInfo(seed1).LastWriteTime > new FileInfo(seed2).LastWriteTime ? seed1 : seed2);
+            string latestSeed = GetLatestSeed();
 
             if (!string.IsNullOrEmpty(latestSeed))
             {
@@ -74,11 +91,26 @@ public class Tracker
         }
         else
         {
-            foreach (string filePath in Directory.GetFiles(seedsPath))
+            foreach (string path in _watchers.Select(watcher => watcher.Path))
             {
-                UpdateSeed(Path.GetFileNameWithoutExtension(filePath));
+                foreach (string filePath in Directory.GetFiles(path))
+                {
+                    UpdateSeed(filePath);
+                }
             }
         }
+    }
+
+    private string GetLatestSeed()
+    {
+        List<string> files = new List<string>();
+        foreach (string path in _watchers.Select(watcher => watcher.Path))
+        {
+            files.AddRange(Directory.GetFiles(path));
+        }
+        
+        return files.Where(seed => !seed.EndsWith(SEED_LIST))
+            .Aggregate((seed1, seed2) => new FileInfo(seed1).LastWriteTime > new FileInfo(seed2).LastWriteTime ? seed1 : seed2);
     }
     
     private void WatcherEvent(object sender, FileSystemEventArgs e)

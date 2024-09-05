@@ -19,6 +19,16 @@ static class Program
         ApplicationConfiguration.Initialize();
         
         Settings settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
+
+        if (settings.AdditionalPaths == null)
+        {
+            settings.AdditionalPaths = new List<string> { @"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\Binaries\Win32\Mods\LootRandomizer\Seeds" };
+        }
+        else if (!settings.AdditionalPaths.Contains(@"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\Binaries\Win32\Mods\LootRandomizer\Seeds"))
+        {
+            settings.AdditionalPaths.Add(@"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\Binaries\Win32\Mods\LootRandomizer\Seeds");
+        }
+        
         _tracker = new Tracker(settings);
         
         _icon = new NotifyIcon();
