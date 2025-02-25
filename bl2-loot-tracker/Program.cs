@@ -20,21 +20,14 @@ static class Program
         
         Settings settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
 
-        if (settings.AdditionalPaths == null)
-        {
-            settings.AdditionalPaths = new List<string> { @"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\Binaries\Win32\Mods\LootRandomizer\Seeds" };
-        }
-        else if (!settings.AdditionalPaths.Contains(@"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\Binaries\Win32\Mods\LootRandomizer\Seeds"))
-        {
-            settings.AdditionalPaths.Add(@"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\Binaries\Win32\Mods\LootRandomizer\Seeds");
-        }
+        SetupAdditionalPaths(settings);
         
         _tracker = new Tracker(settings);
         
         _icon = new NotifyIcon();
 
         ContextMenuStrip menu = new ContextMenuStrip();
-        menu.Items.Add("Open latest Gist...", null, OpenLatest);
+        menu.Items.Add("Open online tracker...", null, OpenLatest);
         menu.Items.Add("Exit", null, Exit);
         _icon.ContextMenuStrip = menu;
         
@@ -58,5 +51,22 @@ static class Program
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
+    }
+
+    private static void SetupAdditionalPaths(Settings settings)
+    {
+        if (settings.AdditionalPaths == null)
+        {
+            settings.AdditionalPaths = new List<string>();
+        }
+
+        List<string> defaultPaths = new List<string>
+        {
+            @"C:\Program Files (x86)\Steam\steamapps\common\Borderlands 2\sdk_mods\LootRandomizer\Seeds",
+            @"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\sdk_mods\LootRandomizer\Seeds",
+            @"C:\Program Files (x86)\Steam\steamapps\common\BorderlandsPreSequel\Binaries\Win32\Mods\LootRandomizer\Seeds"
+        };
+        
+        settings.AdditionalPaths = defaultPaths.Union(settings.AdditionalPaths).ToList();
     }
 }
